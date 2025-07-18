@@ -10,6 +10,7 @@ const ViewPoll = () => {
     const [isExpired, setIsExpired] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         const fetchPoll = async () => {
@@ -48,15 +49,28 @@ const ViewPoll = () => {
     <div className="view-poll-page">
       <h2>{poll.title}</h2>
       <p>{poll.description}</p>
-      {isExpired ? <p>This poll has ended.</p> : <p>Closes on: {poll.deadline}</p>}
+      {isExpired ? (
+        <p>This poll has ended.</p>
+      ) : (
+        <p>Closes on: {poll.deadline}</p>
+      )}
       {/* Vote form placeholder */}
-        <ul>
-            {poll.options.map((option) => (
-            <li key={option.id}>
-                {option.text}
-            </li>
-            ))}
-        </ul>
+      <ul>
+        {poll.options.map((option) => (
+          <li key={option.id}>{option.text}</li>
+        ))}
+      </ul>
+
+      <button
+        disabled={copied}
+        onClick={() => {
+          navigator.clipboard.writeText(window.location.href);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        }}
+      >
+        {copied ? "Copied!" : "Copy Link"}
+      </button>
     </div>
   );
 };
