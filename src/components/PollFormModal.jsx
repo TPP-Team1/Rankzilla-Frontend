@@ -67,6 +67,9 @@ const PollFormModal = ({ isOpen, onClose }) => {
 
     if (!title.trim()) newErrors.title = "Title is required.";
     if (!description.trim()) newErrors.description = "Description is required.";
+    if (allowEndDateTime && !endDateTime.trim()) {
+      newErrors.endDateTime = "End date and time are required.";
+    }
 
     const normalizedOptions = options.map(opt => normalizeOption(opt));
     const uniqueOptions = new Set(normalizedOptions);
