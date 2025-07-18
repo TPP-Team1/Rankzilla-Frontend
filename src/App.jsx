@@ -13,6 +13,7 @@ import VotePollPage from "./pages/VotePollPage";
 import ViewResultsPage from "./pages/ViewResultsPage";
 import Dashboard from "./pages/Dashboard"
 import HostPollView from "./pages/HostPollView";
+import ViewPoll from "./pages/ViewPoll";
 
 
 const App = () => {
@@ -63,6 +64,7 @@ const App = () => {
           <Route path="/polls/results" element={<ViewResultsPage />}/>
           <Route path="/dashboard" element={<Dashboard user={user} />} />
           <Route path="/host/poll/view" element={<HostPollView/>} />
+          <Route path="/poll/:slug" element={<ViewPoll />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
