@@ -57,7 +57,7 @@ const ViewPoll = () => {
       {/* Vote form placeholder */}
       <ul>
         {poll.pollOptions.map((option) => (
-          <li key={option.id}>{option.text}</li>
+          <li key={option.id}>{option.optionText}</li>
         ))}
       </ul>
 
