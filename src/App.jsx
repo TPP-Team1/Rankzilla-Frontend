@@ -64,7 +64,7 @@ const App = () => {
           <Route path="/polls/results" element={<ViewResultsPage />}/>
           <Route path="/dashboard" element={<Dashboard user={user} />} />
           <Route path="/host/poll/view" element={<HostPollView/>} />
-          <Route path="/poll/:slug" element={<ViewPoll />} />
+          <Route path="/polls/view/:slug" element={<ViewPoll />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

@@ -20,7 +20,7 @@ const ViewPoll = () => {
             } catch (error) {
                 setError("Failed to fetch poll data.");
                 console.error(error);
-                navigate("*");
+                //navigate("*");
             }
             finally {
                 setLoading(false);
@@ -56,7 +56,7 @@ const ViewPoll = () => {
       )}
       {/* Vote form placeholder */}
       <ul>
-        {poll.options.map((option) => (
+        {poll.pollOptions.map((option) => (
           <li key={option.id}>{option.text}</li>
         ))}
       </ul>
