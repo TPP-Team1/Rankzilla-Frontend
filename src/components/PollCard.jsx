@@ -32,7 +32,7 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
   };
 
   return (
-    <li className="poll-item" onClick={() => navigate(`/polls/view/${poll.id}`)}>
+    <li className="poll-item" onClick={() => navigate(`/polls/view/${poll.slug}`)}>
       <div className="poll-body">
         <div className="poll-left">
           <div className="checkbox-placeholder" />
