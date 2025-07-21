@@ -15,6 +15,7 @@ import EditPoll from "./pages/EditPoll";
 import CreatePoll from "./pages/CreatePoll";
 import VotePollPage from "./pages/VotePollPage";
 import HostPollView from "./pages/HostPollView";
+import ThankYouPage from "./pages/Thankyou";
 //import Demo from "./pages/Demo";
 
 import { API_URL } from "./shared";
@@ -58,36 +59,46 @@ const App = () => {
   console.log("Current user:", user);
 
   const checkAuth = async () => {
-    // Clean up any old guest sessions first 
+    // Clean up any old guest sessions first
     cleanupExpiredGuestSession();
 
-    // Check if someone's logged in as a guest (stored in browser)
-    const savedGuestSession = localStorage.getItem('guestSession');
+    // Check if user is logged in as a guest (from localStorage)
+    const savedGuestSession = localStorage.getItem("guestSession");
     if (savedGuestSession) {
       try {
         const guestUser = JSON.parse(savedGuestSession);
         if (guestUser.isGuest) {
+          //Guest found in localStorage, use it
           setUser(guestUser);
-          return; // Found guest user, no need to check server
+          return; // Skip server auth check
         }
       } catch (e) {
-        // Something went wrong with the saved data, just delete it
-        localStorage.removeItem('guestSession');
+        // If stored data is corrupt, remove it
+        localStorage.removeItem("guestSession");
       }
     }
 
-
-    // Now check if someone's actually logged in with the server
+    // Check with server if user is logged in (JWT session)
     try {
       const response = await axios.get(`${API_URL}/auth/me`, {
         withCredentials: true,
       });
+
+      // Authenticated user found
       setUser(response.data.user);
-      // If they're properly logged in, we don't need the guest session anymore
-      localStorage.removeItem('guestSession');
-    } catch {
-      console.log("Not authenticated");
-      setUser(null);
+
+      // Clean up guest session if one existed
+      localStorage.removeItem("guestSession");
+
+    } catch (err) {
+      if (err.response?.status === 401) {
+        // Not authenticated → treat as guest
+        console.log("Guest user detected (unauthenticated)");
+        setUser(null);
+      } else {
+        // Unexpected server or network error
+        console.error("Unexpected auth error:", err);
+      }
     }
   };
 
@@ -158,6 +169,7 @@ const App = () => {
 
           {/* Optional fallback */}
           <Route path="*" element={<NotFound />} />
+          <Route path="/thank-you" element={<ThankYouPage />} />
         </Routes>
       </div>
       {isCreatePollOpen && (
