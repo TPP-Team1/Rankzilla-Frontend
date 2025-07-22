@@ -2,25 +2,23 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./NavBarStyles.css";
 
-const NavBar = ({ user, onLogout }) => {
+const NavBar = ({ user, onLogout, onOpenCreatePoll }) => {
   return (
     <nav className="navbar">
       <div className="nav-brand">
-        <Link to="/">Rankzilla</Link>
+        <Link to={user ? "/dashboard" : "/"}>Rankzilla</Link>
         <Link to="/demo" className="nav-link">Demo</Link>
       </div>
 
       <div className="nav-links">
-
-        
-
         {user ? (
           <div className="user-section">
+            {/* Only show "Create a poll" for authenticated users with username (not guests) */}
+            {user.username && (
+              <button className="nav-link" onClick={onOpenCreatePoll}>Create a poll</button>
+            )}
 
-        <Link to="/create-poll" className="nav-link">Create a poll</Link>
-
-
-            <span className="username">Welcome, {user.username}!</span>
+            <span className="username">Welcome, {user.username || 'Guest'}!</span>
             <button onClick={onLogout} className="logout-btn">
               Logout
             </button>
@@ -29,9 +27,6 @@ const NavBar = ({ user, onLogout }) => {
           <div className="auth-links">
             <Link to="/login" className="nav-link">
               Login
-            </Link>
-            <Link to="/signup" className="nav-link">
-              Sign Up
             </Link>
           </div>
         )}
