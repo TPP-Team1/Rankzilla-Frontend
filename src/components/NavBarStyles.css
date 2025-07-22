@@ -5,20 +5,26 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: #f8f9fa;
+  background-color: #040657;;
   padding: 1rem 2rem;
   border-bottom: 1px solid #e9ecef;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .nav-brand a {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #333;
+  color: #007bff;
   text-decoration: none;
 }
 
 .nav-brand a:hover {
-  color: #007bff;
+  color: #333;;
 }
 
 .nav-links {
@@ -33,16 +39,38 @@
 }
 
 .nav-link {
-  color: #666;
+  color: #25212f1e;
   text-decoration: none;
   padding: 0.5rem 1rem;
   border-radius: 4px;
-  transition: all 0.2s;
+  
 }
 
 .nav-link:hover {
   color: #007bff;
   background-color: #e9ecef;
+}
+
+/* DEMO button */
+.nav-brand .nav-link {
+  background-color: #272634;
+  color: #000;
+  font-weight: 200;
+  font-size: 0.8rem;
+  border-radius: 12px;
+  padding: 4px 10px;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+/* "Create a poll" or Login link */
+.nav-link {
+  background-color: #1a2a8c;
+  color: white;
+  font-weight: 500;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  transition: background-color 0.3s;
 }
 
 .user-section {
