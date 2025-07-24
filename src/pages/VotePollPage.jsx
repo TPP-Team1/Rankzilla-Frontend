@@ -9,6 +9,7 @@ const VotePollPage = () => {
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [hasVoted, setHasVoted] = useState(false);
 
   useEffect(() => {
     const fetchPoll = async () => {
@@ -45,6 +46,26 @@ const VotePollPage = () => {
     fetchPoll();
   }, [id, slug]);
 
+  useEffect(() => {
+    const checkIfVoted = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/polls/${id}/vote`, {
+          withCredentials: true,
+        });
+        if (res.data) {setHasVoted(true); }
+      } catch (error) {
+        if (error.response?.status === 404){
+          setHasVoted(false); //no vote found
+        } else {
+          console.error("Error checking vote status:", error);
+        }
+      }finally {
+        setLoading(false);
+      }
+    };
+    checkIfVoted();
+  }, [id]);
+
   if (loading) {
     return (
       <div style={{ padding: "2rem", textAlign: "center" }}>
@@ -80,6 +101,31 @@ const VotePollPage = () => {
     return (
       <div style={{ padding: "2rem", textAlign: "center" }}>
         <p>Poll not found</p>
+        <button 
+          onClick={() => navigate("/dashboard")}
+          style={{ 
+            marginTop: "1rem", 
+            padding: "0.5rem 1rem", 
+            background: "#007bff", 
+            color: "white", 
+            border: "none", 
+            borderRadius: "4px",
+            cursor: "pointer" 
+          }}
+        >
+          Back to Dashboard
+        </button>
+      </div>
+    );
+  }
+  // If the user has already voted, show a thank you message
+  // and a button to go back to the dashboard
+  if (hasVoted) {
+    return (
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        <h2>Thank You!</h2>
+        <p>You have already voted on this poll.</p> 
+        {/* add: "results will be released when poll closes on : {poll.deadline}" */}
         <button 
           onClick={() => navigate("/dashboard")}
           style={{ 

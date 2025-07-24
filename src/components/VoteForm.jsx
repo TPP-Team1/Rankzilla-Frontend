@@ -130,7 +130,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
 
       
 
-      await fetch(`${API_URL}/api/polls/${poll.id}/votes`, {
+      await fetch(`${API_URL}/api/polls/${poll.id}/vote`, {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
