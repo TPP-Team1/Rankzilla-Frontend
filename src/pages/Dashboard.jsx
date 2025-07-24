@@ -21,13 +21,15 @@ const Dashboard = ({ user: currentUser }) => {
 
   const fetchPolls = async () => {
     setLoading(true);
+    let url = `${API_URL}/api/polls`;
+    if (filter === "created") url = `${API_URL}/api/polls/created`;
+    if (filter === "participated") url = `${API_URL}/api/polls/participated`;
     try {
-      const res = await fetch(`${API_URL}/api/polls`, {
+      const res = await fetch(url, {
         credentials: "include",
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch polls");
-
       setPolls(data);
       setError("");
     } catch (err) {
@@ -39,7 +41,7 @@ const Dashboard = ({ user: currentUser }) => {
 
   useEffect(() => {
     fetchPolls();
-  }, [location.pathname]); // Re-fetch when navigating to dashboard
+  }, [location.pathname, filter]); // Re-fetch when navigating or filter changes
 
   // Automatically close polls after deadline without refresh
   useEffect(() => {
@@ -145,7 +147,7 @@ const Dashboard = ({ user: currentUser }) => {
         />
         <select value={filter} onChange={(e) => setFilter(e.target.value)}>
           <option value="all">All</option>
-          <option value="published">Created</option>
+          <option value="created">Created</option>
           <option value="participated">Participated</option>
         </select>
         <select
