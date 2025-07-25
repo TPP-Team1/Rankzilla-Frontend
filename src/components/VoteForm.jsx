@@ -4,12 +4,12 @@ import { API_URL } from "../shared";
 
 const VoteForm = ({ poll, readOnly = false }) => {
   const [rankings, setRankings] = useState({});
-  console.log("this is rankins---->", rankings)
+  console.log("this is rankins---->", rankings);
   const [submitting, setSubmitting] = useState(false);
   const [orderedOptions, setOrderedOptions] = useState([]);
-  console.log("this is ordered options", orderedOptions)
+  console.log("this is ordered options", orderedOptions);
   const [draggedItem, setDraggedItem] = useState(null);
-  console.log("dragged--->", draggedItem)
+  console.log("dragged--->", draggedItem);
   const [deletedOptions, setDeletedOptions] = useState(new Set());
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
@@ -20,83 +20,95 @@ const VoteForm = ({ poll, readOnly = false }) => {
 
   // Initialize ordered options when poll changes
   useEffect(() => {
-    if (poll?.pollOptions) {
+    if (poll?.pollOptions && orderedOptions.length === 0) {
       setOrderedOptions([...poll.pollOptions]);
     }
   }, [poll?.pollOptions]);
 
   // Update rankings whenever the order changes
   useEffect(() => {
-    let newRankings = [];
-    orderedOptions.forEach((option, index) => {
-      if (deletedOptions.has(option.id)) {
-        // Keep deleted options as null for algorrithm
-        newRankings[option.id] = null;
-      } else {
-        // Find the position among non-deleted options
-        const nonDeletedBefore = orderedOptions
-          .slice(0, index)
-          .filter((opt) => !deletedOptions.has(opt.id)).length;
+    const newRankings = {};
+  let currentRank = 1;
 
-        newRankings.push({
-          optionId: option.id,
-          rank: nonDeletedBefore + 1
-        })
-
-        // newRankings.optionId = option.id,
-        //   newRankings.ranking = index
-        // newRankings.optionId = option.id
-      }
-    });
+  orderedOptions.forEach((option) => {
+    if (deletedOptions.has(option.id)) {
+      newRankings[option.id] = null;
+    } else {
+      newRankings[option.id] = currentRank++;
+    }
+  });
+      
     setRankings(newRankings);
   }, [orderedOptions, deletedOptions]);
 
   useEffect(() => {
     const fetchOrCreateVote = async () => {
       if (!poll?.id || readOnly) return;
-  
+
       try {
         // Try to fetch vote
         const res = await axios.get(`${API_URL}/api/polls/${poll.id}/vote`, {
           withCredentials: true,
         });
-  
+
         const voteData = res.data;
         setVoteId(voteData.id);
-  
+
         // Restore saved rankings if they exist
         if (voteData.votingRanks) {
-          const restored = voteData.votingRanks.map(rank => ({
+          const restored = voteData.votingRanks.map((rank) => ({
             optionId: rank.pollOptionId,
             rank: rank.rank,
           }));
-  
+        
           const restoredMap = {};
-          restored.forEach(r => {
+          restored.forEach((r) => {
             restoredMap[r.optionId] = r.rank;
           });
-  
+        
           setRankings(restoredMap);
+
+          // Set ordered options based on restored rankings
+        
+          if (poll?.pollOptions) {
+            const sortedOptions = [...poll.pollOptions]
+              .filter(opt => restoredMap[opt.id] !== undefined && restoredMap[opt.id] !== null)
+              .sort((a, b) => restoredMap[a.id] - restoredMap[b.id]);
+        
+            const unranked = poll.pollOptions.filter(opt => restoredMap[opt.id] === undefined);
+        
+            setOrderedOptions([...sortedOptions, ...unranked]);
+        
+            const deleted = new Set(
+              poll.pollOptions
+                .filter(opt => restoredMap[opt.id] === null)
+                .map(opt => opt.id)
+            );
+            setDeletedOptions(deleted);
+          }
         }
+        
       } catch (err) {
         // Vote doesn't exist, so create it
         try {
-          const createRes = await axios.post(`${API_URL}/api/polls/${poll.id}/vote`, {
-            submitted: false,
-            rankings: [],
-          }, { withCredentials: true });
-  
+          const createRes = await axios.post(
+            `${API_URL}/api/polls/${poll.id}/vote`,
+            {
+              submitted: false,
+              rankings: [],
+            },
+            { withCredentials: true }
+          );
+
           setVoteId(createRes.data.id);
         } catch (createErr) {
           console.error("Failed to create vote:", createErr);
         }
       }
     };
-  
+
     fetchOrCreateVote();
   }, [poll?.id, readOnly]);
-  
-  
 
   if (!poll) {
     return <div className="vote-form">Loading poll data...</div>;
@@ -175,11 +187,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
     setSubmitting(true);
 
     try {
-
-      
-
       await fetch(`${API_URL}/api/polls/${poll.id}/vote`, {
-
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -210,20 +218,24 @@ const VoteForm = ({ poll, readOnly = false }) => {
       setError("No voteId – cannot save draft.");
       return;
     }
-  
+
     try {
       const formattedRankings = orderedOptions
-        .filter(opt => !deletedOptions.has(opt.id))
+        .filter((opt) => !deletedOptions.has(opt.id))
         .map((opt, index) => ({
           optionId: opt.id,
           rank: index + 1,
         }));
-  
-      await axios.patch(`${API_URL}/api/polls/${poll.id}/vote/${voteId}`, {
-        submitted: false,
-        rankings: formattedRankings,
-      }, { withCredentials: true });
-  
+
+      await axios.patch(
+        `${API_URL}/api/polls/${poll.id}/vote/${voteId}`,
+        {
+          submitted: false,
+          rankings: formattedRankings,
+        },
+        { withCredentials: true }
+      );
+
       alert("Draft saved successfully!");
       setSubmitted(false);
     } catch (err) {
@@ -231,7 +243,6 @@ const VoteForm = ({ poll, readOnly = false }) => {
       setError("Failed to save draft. Please try again.");
     }
   };
-  
 
   return (
     <form onSubmit={handleSubmit} className="vote-form">
@@ -247,8 +258,9 @@ const VoteForm = ({ poll, readOnly = false }) => {
           return (
             <div
               key={option.id}
-              className={`ranking-item ${draggedItem === index ? "dragging" : ""
-                } ${isDeleted ? "deleted" : ""}`}
+              className={`ranking-item ${
+                draggedItem === index ? "dragging" : ""
+              } ${isDeleted ? "deleted" : ""}`}
               draggable={!readOnly && !isDeleted && !submitted}
               onDragStart={(e) => !isDeleted && handleDragStart(e, index)}
               onDragOver={(e) => !isDeleted && handleDragOver(e, index)}
@@ -315,10 +327,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
       </div>
 
       {error && (
-        <div
-          className="submit-error"
-          style={{ color: "red" }}
-        >
+        <div className="submit-error" style={{ color: "red" }}>
           {error}
         </div>
       )}
@@ -328,7 +337,6 @@ const VoteForm = ({ poll, readOnly = false }) => {
       </button>
 
       <button onClick={handleSaveDraft}>Save Draft</button>
-
     </form>
   );
 };
