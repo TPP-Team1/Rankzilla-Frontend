@@ -207,7 +207,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
       (opt) => !deletedOptions.has(opt.id)
     ).length;
 
-    const hasRankedAll = movedOptionIds.length >= rankingsAvailable;
+    const hasRankedAll = movedOptionIds.size >= rankingsAvailable;
 
     // Show popup if not all options moved
     if (!hasRankedAll) {
