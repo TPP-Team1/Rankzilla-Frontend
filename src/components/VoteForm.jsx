@@ -53,28 +53,50 @@ const VoteForm = ({ poll, readOnly = false }) => {
 
   useEffect(() => {
     const fetchOrCreateVote = async () => {
+      if (!poll?.id || readOnly) return;
+  
       try {
+        // Try to fetch vote
         const res = await axios.get(`${API_URL}/api/polls/${poll.id}/vote`, {
           withCredentials: true,
         });
-        if (res.data) {
-          setVoteId(res.data.id); //vote exists
-        } else {
-          // create vote
+  
+        const voteData = res.data;
+        setVoteId(voteData.id);
+  
+        // Restore saved rankings if they exist
+        if (voteData.votingRanks) {
+          const restored = voteData.votingRanks.map(rank => ({
+            optionId: rank.pollOptionId,
+            rank: rank.rank,
+          }));
+  
+          const restoredMap = {};
+          restored.forEach(r => {
+            restoredMap[r.optionId] = r.rank;
+          });
+  
+          setRankings(restoredMap);
+        }
+      } catch (err) {
+        // Vote doesn't exist, so create it
+        try {
           const createRes = await axios.post(`${API_URL}/api/polls/${poll.id}/vote`, {
             submitted: false,
             rankings: [],
-          }, {
-            withCredentials: true,
-          });
-          setVoteId(createRes.data.id); //new vote created
+          }, { withCredentials: true });
+  
+          setVoteId(createRes.data.id);
+        } catch (createErr) {
+          console.error("Failed to create vote:", createErr);
         }
-      } catch (error) {
-        console.error("Failed to fetch or create vote:", error);
       }
     };
-    if (!readOnly) fetchOrCreateVote();
-  }, []);
+  
+    fetchOrCreateVote();
+  }, [poll?.id, readOnly]);
+  
+  
 
   if (!poll) {
     return <div className="vote-form">Loading poll data...</div>;
@@ -156,7 +178,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
 
       
 
-      await fetch(`${API_URL}/api/polls/${poll.id}/votes`, {
+      await fetch(`${API_URL}/api/polls/${poll.id}/vote`, {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -184,25 +206,32 @@ const VoteForm = ({ poll, readOnly = false }) => {
 
   const handleSaveDraft = async (e) => {
     e.preventDefault();
-    try {
-        const formattedRankings = orderedOptions.filter((opt) => !deletedOptions.has(opt.id))
-          .map((opt, index) => ({
-            optionId: opt.id,
-            rank: index + 1,
-          }));
-
-        const res = await axios.patch(`${API_URL}/api/polls/${poll.id}/vote/${voteId}`, {
-          submitted: false,
-          rankings: formattedRankings,
-        },
-         { 
-          withCredentials: true});
-        alert("Draft saved successfully!");
-    } catch (error) {
-        console.error("Failed to save draft:", error);
-        setError("Failed to save draft. Please try again.");
+    if (!voteId) {
+      setError("No voteId – cannot save draft.");
+      return;
     }
-  }
+  
+    try {
+      const formattedRankings = orderedOptions
+        .filter(opt => !deletedOptions.has(opt.id))
+        .map((opt, index) => ({
+          optionId: opt.id,
+          rank: index + 1,
+        }));
+  
+      await axios.patch(`${API_URL}/api/polls/${poll.id}/vote/${voteId}`, {
+        submitted: false,
+        rankings: formattedRankings,
+      }, { withCredentials: true });
+  
+      alert("Draft saved successfully!");
+      setSubmitted(false);
+    } catch (err) {
+      console.error("Failed to save draft:", err);
+      setError("Failed to save draft. Please try again.");
+    }
+  };
+  
 
   return (
     <form onSubmit={handleSubmit} className="vote-form">
