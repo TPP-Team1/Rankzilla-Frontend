@@ -20,6 +20,10 @@ const VoteForm = ({ poll, readOnly = false }) => {
   console.log("VoteForm rendered with poll:", poll);
   console.log("Poll options:", poll?.pollOptions);
 
+  const allDeleted =
+    orderedOptions.length > 0 &&
+    orderedOptions.every((opt) => deletedOptions.has(opt.id)); // Check if all options are deleted
+
   // Initialize ordered options when poll changes
   useEffect(() => {
     if (poll?.pollOptions && orderedOptions.length === 0) {
@@ -173,11 +177,6 @@ const VoteForm = ({ poll, readOnly = false }) => {
 
       setMovedOptionIds((prev) => {
         const updated = new Set(prev);
-        if (!updated.has(draggedOption.id)) {
-          console.log(
-            `Option "${draggedOption.optionText}" (id: ${draggedOption.id}) moved for the first time`
-          );
-        }
         updated.add(draggedOption.id);
         setMoveWarning("");
         return updated;
@@ -210,13 +209,13 @@ const VoteForm = ({ poll, readOnly = false }) => {
 
     const hasRankedAll = movedOptionIds.length >= rankingsAvailable;
 
-     // Show popup if not all options moved
-  if (!hasRankedAll) {
-    const confirmProceed = window.confirm(
-      "You haven't moved all options. Are you sure you want to submit anyway?"
-    );
-    if (!confirmProceed) return;
-  }
+    // Show popup if not all options moved
+    if (!hasRankedAll) {
+      const confirmProceed = window.confirm(
+        "You haven't ranked all options. Are you sure you want to submit anyway?"
+      );
+      if (!confirmProceed) return;
+    }
 
     setSubmitting(true);
     setMoveWarning("");
@@ -367,11 +366,24 @@ const VoteForm = ({ poll, readOnly = false }) => {
         </div>
       )}
 
-      <button type="submit" disabled={readOnly || submitting || submitted}>
+      {allDeleted && (
+        <p style={{ color: "red" }}>
+          You have deleted all options. Please restore at least one option to
+          proceed.
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={readOnly || submitting || submitted || allDeleted}
+      >
         Submit Vote
       </button>
 
-      <button onClick={handleSaveDraft} disabled={movedOptionIds.size === 0 || submitted}>
+      <button
+        onClick={handleSaveDraft}
+        disabled={movedOptionIds.size === 0 || submitted || allDeleted}
+      >
         Save Draft
       </button>
     </form>
