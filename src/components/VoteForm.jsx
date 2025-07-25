@@ -14,6 +14,8 @@ const VoteForm = ({ poll, readOnly = false }) => {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
   const [voteId, setVoteId] = useState(null);
+  const [movedOptionIds, setMovedOptionIds] = useState(new Set());
+
 
   console.log("VoteForm rendered with poll:", poll);
   console.log("Poll options:", poll?.pollOptions);
@@ -163,6 +165,16 @@ const VoteForm = ({ poll, readOnly = false }) => {
 
       setOrderedOptions(newOrderedOptions);
       setDraggedItem(index);
+
+      setMovedOptionIds((prev) => {
+        const updated = new Set(prev);
+        if (!updated.has(draggedOption.id)) {
+          console.log(`Option "${draggedOption.optionText}" (id: ${draggedOption.id}) moved for the first time`);
+        }
+        updated.add(draggedOption.id);
+        return updated;
+      });
+      
     }
   };
 
@@ -336,7 +348,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
         Submit Vote
       </button>
 
-      <button onClick={handleSaveDraft}>Save Draft</button>
+      <button onClick={handleSaveDraft} disabled={movedOptionIds.size === 0}>Save Draft</button>
     </form>
   );
 };
