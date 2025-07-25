@@ -15,7 +15,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
   const [error, setError] = useState(null);
   const [voteId, setVoteId] = useState(null);
   const [movedOptionIds, setMovedOptionIds] = useState(new Set());
-
+  const [moveWarning, setMoveWarning] = useState("");
 
   console.log("VoteForm rendered with poll:", poll);
   console.log("Poll options:", poll?.pollOptions);
@@ -30,16 +30,16 @@ const VoteForm = ({ poll, readOnly = false }) => {
   // Update rankings whenever the order changes
   useEffect(() => {
     const newRankings = {};
-  let currentRank = 1;
+    let currentRank = 1;
 
-  orderedOptions.forEach((option) => {
-    if (deletedOptions.has(option.id)) {
-      newRankings[option.id] = null;
-    } else {
-      newRankings[option.id] = currentRank++;
-    }
-  });
-      
+    orderedOptions.forEach((option) => {
+      if (deletedOptions.has(option.id)) {
+        newRankings[option.id] = null;
+      } else {
+        newRankings[option.id] = currentRank++;
+      }
+    });
+
     setRankings(newRankings);
   }, [orderedOptions, deletedOptions]);
 
@@ -62,34 +62,39 @@ const VoteForm = ({ poll, readOnly = false }) => {
             optionId: rank.pollOptionId,
             rank: rank.rank,
           }));
-        
+
           const restoredMap = {};
           restored.forEach((r) => {
             restoredMap[r.optionId] = r.rank;
           });
-        
+
           setRankings(restoredMap);
 
           // Set ordered options based on restored rankings
-        
+
           if (poll?.pollOptions) {
             const sortedOptions = [...poll.pollOptions]
-              .filter(opt => restoredMap[opt.id] !== undefined && restoredMap[opt.id] !== null)
+              .filter(
+                (opt) =>
+                  restoredMap[opt.id] !== undefined &&
+                  restoredMap[opt.id] !== null
+              )
               .sort((a, b) => restoredMap[a.id] - restoredMap[b.id]);
-        
-            const unranked = poll.pollOptions.filter(opt => restoredMap[opt.id] === undefined);
-        
+
+            const unranked = poll.pollOptions.filter(
+              (opt) => restoredMap[opt.id] === undefined
+            );
+
             setOrderedOptions([...sortedOptions, ...unranked]);
-        
+
             const deleted = new Set(
               poll.pollOptions
-                .filter(opt => restoredMap[opt.id] === null)
-                .map(opt => opt.id)
+                .filter((opt) => restoredMap[opt.id] === null)
+                .map((opt) => opt.id)
             );
             setDeletedOptions(deleted);
           }
         }
-        
       } catch (err) {
         // Vote doesn't exist, so create it
         try {
@@ -169,12 +174,14 @@ const VoteForm = ({ poll, readOnly = false }) => {
       setMovedOptionIds((prev) => {
         const updated = new Set(prev);
         if (!updated.has(draggedOption.id)) {
-          console.log(`Option "${draggedOption.optionText}" (id: ${draggedOption.id}) moved for the first time`);
+          console.log(
+            `Option "${draggedOption.optionText}" (id: ${draggedOption.id}) moved for the first time`
+          );
         }
         updated.add(draggedOption.id);
+        setMoveWarning("");
         return updated;
       });
-      
     }
   };
 
@@ -196,7 +203,23 @@ const VoteForm = ({ poll, readOnly = false }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const rankingsAvailable = orderedOptions.filter(
+      (opt) => !deletedOptions.has(opt.id)
+    ).length;
+
+    const hasRankedAll = movedOptionIds.length >= rankingsAvailable;
+
+     // Show popup if not all options moved
+  if (!hasRankedAll) {
+    const confirmProceed = window.confirm(
+      "You haven't moved all options. Are you sure you want to submit anyway?"
+    );
+    if (!confirmProceed) return;
+  }
+
     setSubmitting(true);
+    setMoveWarning("");
 
     try {
       await fetch(`${API_URL}/api/polls/${poll.id}/vote`, {
@@ -348,7 +371,9 @@ const VoteForm = ({ poll, readOnly = false }) => {
         Submit Vote
       </button>
 
-      <button onClick={handleSaveDraft} disabled={movedOptionIds.size === 0}>Save Draft</button>
+      <button onClick={handleSaveDraft} disabled={movedOptionIds.size === 0 || submitted}>
+        Save Draft
+      </button>
     </form>
   );
 };
