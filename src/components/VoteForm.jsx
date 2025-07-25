@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { API_URL } from "../shared";
 
 const VoteForm = ({ poll, readOnly = false }) => {
@@ -13,6 +13,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
   const [deletedOptions, setDeletedOptions] = useState(new Set());
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
+  const [voteId, setVoteId] = useState(null);
 
   console.log("VoteForm rendered with poll:", poll);
   console.log("Poll options:", poll?.pollOptions);
@@ -49,6 +50,31 @@ const VoteForm = ({ poll, readOnly = false }) => {
     });
     setRankings(newRankings);
   }, [orderedOptions, deletedOptions]);
+
+  useEffect(() => {
+    const fetchOrCreateVote = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/polls/${poll.id}/vote`, {
+          withCredentials: true,
+        });
+        if (res.data) {
+          setVoteId(res.data.id); //vote exists
+        } else {
+          // create vote
+          const createRes = await axios.post(`${API_URL}/api/polls/${poll.id}/vote`, {
+            submitted: false,
+            rankings: [],
+          }, {
+            withCredentials: true,
+          });
+          setVoteId(createRes.data.id); //new vote created
+        }
+      } catch (error) {
+        console.error("Failed to fetch or create vote:", error);
+      }
+    };
+    if (!readOnly) fetchOrCreateVote();
+  }, []);
 
   if (!poll) {
     return <div className="vote-form">Loading poll data...</div>;
@@ -165,7 +191,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
             rank: index + 1,
           }));
 
-        const res = await axios.patch(`${API_URL}/api/polls/${poll.id}/vote/${voteID}`, {
+        const res = await axios.patch(`${API_URL}/api/polls/${poll.id}/vote/${voteId}`, {
           submitted: false,
           rankings: formattedRankings,
         },
