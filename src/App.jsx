@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import axios from "axios";
 import "./AppStyles.css";
 import NavBar from "./components/NavBar";
-import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route, useNavigate } from "react-router-dom";
 import NotFound from "./components/NotFound";
 
 import Home from "./pages/Home";
@@ -31,6 +31,7 @@ import UserProfile from "./pages/UserProfile";
 const App = () => {
   const [user, setUser] = useState(null);
   const [isCreatePollOpen, setIsCreatePollOpen] = useState(false);
+  const navigate = useNavigate();
 
   const cleanupExpiredGuestSession = () => {
     const savedGuestSession = localStorage.getItem('guestSession');
@@ -101,6 +102,7 @@ const App = () => {
       if (user?.isGuest) {
         localStorage.removeItem('guestSession');
         setUser(null);
+        navigate("/");
         return;
       }
       await axios.post(
@@ -111,6 +113,7 @@ const App = () => {
         }
       );
       setUser(null);
+      navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
     }
