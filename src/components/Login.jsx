@@ -99,7 +99,7 @@ const Login = ({ setUser }) => {
       });
 
       setUser(response.data.user);
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       if (error.response?.data?.error) {
         setErrors({ general: error.response.data.error });

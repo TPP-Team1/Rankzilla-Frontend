@@ -128,7 +128,6 @@ const VoteForm = ({ poll, readOnly = false }) => {
 
     try {
 
-      
 
       await fetch(`${API_URL}/api/polls/${poll.id}/vote`, {
 
