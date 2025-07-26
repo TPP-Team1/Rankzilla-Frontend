@@ -49,7 +49,6 @@ const AdminDashboard = ({ user }) => {
       <MyPollsTab user={user} />
       </div>
       }
-        
 
     </div>
   );

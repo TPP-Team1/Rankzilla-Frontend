@@ -10,12 +10,12 @@ import Demo from "./pages/Demo";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
 import VotePollPage from "./pages/VotePollPage";
-import ViewResultsPage from "./pages/ViewResultsPage";
+//import ViewResultsPage from "./pages/ViewResultsPage";
 import Dashboard from "./pages/Dashboard"
 import HostPollView from "./pages/HostPollView";
 import SmartPollView from "./pages/SmartPollView";
 import AdminDashboard from "./pages/AdminDashboard";
-
+import ViewVotedPollPage from "./pages/ViewVotedPollPage";
 
 
 const App = () => {
@@ -114,7 +114,7 @@ const App = () => {
           <Route exact path="/" element={<Home />} />
           <Route path="/demo" element={<Demo />} />
           <Route path="/vote" element={<VotePollPage />} />
-          <Route path="/results/:id" element={<ViewResultsPage user={user} />} />
+          <Route path="/results/:id" element={<ViewVotedPollPage />} />
           <Route path="/dashboard" element={user?.isAdmin ? <AdminDashboard user={user} /> : <Dashboard user={user} />} />
           <Route path="/polls/host/:id" element={<HostPollView />} />
           <Route path="/polls/view/:id" element={<VotePollPage />} />

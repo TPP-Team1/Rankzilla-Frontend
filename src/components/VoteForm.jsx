@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_URL } from "../shared";
 
 const VoteForm = ({ poll, readOnly = false }) => {
   const [rankings, setRankings] = useState({});
@@ -112,7 +113,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
     setSubmitting(true);
 
     try {
-       await fetch(`http://localhost:8080/api/polls/${poll.id}/vote`, {
+       await fetch(`${API_URL}/api/polls/${pollId}/vote`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

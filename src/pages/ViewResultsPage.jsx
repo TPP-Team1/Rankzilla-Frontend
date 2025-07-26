@@ -1,87 +1,93 @@
 import React, { useEffect, useState } from "react";
-import NavBar from "../components/NavBar";
+import { useParams } from "react-router-dom";
 import CurrentRank from "../components/result/CurrentRank";
 import YourRankList from "../components/result/YourRankList";
-
-const dummyPoll = {
-  title: "Where should we get catering from?",
-   deadline: new Date(Date.now() + 1 * 60 * 1000).toISOString(),
-};
-
-const dummyRankedResults = [
-  { optionText: "Sushi Wave", count: 20 },
-  { optionText: "Noodle House", count: 14 },
-  { optionText: "Taco Palace", count: 12 },
-  { optionText: "Pizza Central", count: 7 },
-];
-
-const dummyUserRanking = [
-  { optionText: "Pizza Central" },
-  { optionText: "Noodle House" },
-  { optionText: "Taco Palace" },
-  { optionText: "Sushi Wave" },
-];
+import { API_URL } from "../shared";
 
 const ViewResultsPage = ({ user }) => {
-  const [timeLeft, setTimeLeft] = useState("");
+  const { id } = useParams(); // or slug, depending on your router
+  const [poll, setPoll] = useState(null);
+  const [rankedResults, setRankedResults] = useState([]);
+  const [userRanking, setUserRanking] = useState([]);
   const [isPollEnded, setIsPollEnded] = useState(false);
+  const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date();
-      const end = new Date(dummyPoll.deadline);
-      const diff = end - now;
+    const fetchResults = async () => {
+      try {
+        const pollRes = await fetch(`${API_URL}/polls/${poll.id}`, {
+          credentials: "include",
+        });
+        const pollData = await pollRes.json();
+        setPoll(pollData);
 
-      if (diff <= 0) {
-        setIsPollEnded(true);
-        setTimeLeft("Poll has ended.");
-        clearInterval(interval);
-      } else {
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+        const resultsRes = await fetch(`${API_URL}/polls/${poll.id}/results`, {
+          credentials: "include",
+        });
+        const resultsData = await resultsRes.json();
+        setRankedResults(resultsData);
+
+        const userVoteRes = await fetch(`${API_URL}/polls/${poll.id}/vote`, {
+          credentials: "include",
+        });
+        const userVote = await userVoteRes.json();
+        setUserRanking(userVote.ranking || []);
+
+        // set up countdown
+        const deadline = new Date(pollData.deadline);
+        const interval = setInterval(() => {
+          const now = new Date();
+          const diff = deadline - now;
+
+          if (diff <= 0) {
+            setIsPollEnded(true);
+            setTimeLeft("Poll has ended.");
+            clearInterval(interval);
+          } else {
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+            setTimeLeft(`${d}d ${h}h ${m}m ${s}s`);
+          }
+        }, 1000);
+
+        return () => clearInterval(interval);
+      } catch (err) {
+        console.error("Failed to fetch results:", err);
       }
-    }, 1000);
+    };
 
-    return () => clearInterval(interval);
-  }, []);
+    fetchResults();
+  }, [id]);
+
+  if (!poll) return <p>Loading...</p>;
 
   return (
-    <>
-      <div className="view-results-page" style={{ padding: "2rem" }}>
-        <h2>{dummyPoll.title}</h2>
-        <p>
-          Poll ends: {new Date(dummyPoll.deadline).toLocaleString()}
-          <br />
-          {isPollEnded ? (
-            <strong style={{ color: "green" }}>Poll has ended</strong>
-          ) : (
-            <span style={{ color: "#888" }}>Time left: {timeLeft}</span>
-          )}
-        </p>
+    <div className="view-results-page" style={{ padding: "2rem" }}>
+      <h2>{poll.title}</h2>
+      <p>
+        Poll ends: {new Date(poll.deadline).toLocaleString()}
+        <br />
+        {isPollEnded ? (
+          <strong style={{ color: "green" }}>Poll has ended</strong>
+        ) : (
+          <span style={{ color: "#888" }}>Time left: {timeLeft}</span>
+        )}
+      </p>
 
-        <div
-          style={{
-            display: "flex",
-            gap: "2rem",
-            marginTop: "2rem",
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ flex: 1, minWidth: "300px" }}>
-            <h3>{isPollEnded ? "Final Results" : "Live Results"}</h3>
-            <CurrentRank data={dummyRankedResults} poll={dummyPoll} isEnded={isPollEnded} />
-            </div>
+      <div style={{ display: "flex", gap: "2rem", marginTop: "2rem", flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: "300px" }}>
+          <h3>{isPollEnded ? "Final Results" : "Live Results"}</h3>
+          <CurrentRank data={rankedResults} poll={poll} />
+        </div>
 
-          <div style={{ flex: 1, minWidth: "300px" }}>
-            <h3>Your Ranking</h3>
-            <YourRankList ranking={dummyUserRanking} />
-          </div>
+        <div style={{ flex: 1, minWidth: "300px" }}>
+          <h3>Your Ranking</h3>
+          <YourRankList ranking={userRanking} />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
