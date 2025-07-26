@@ -11,12 +11,16 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
     const end = new Date(deadline);
     const diff = Math.max(0, end - now);
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return days === 0 ? "no end date" : `ends in ${days} day${days > 1 ? "s" : ""}`;
+    return days === 0
+      ? "no end date"
+      : `ends in ${days} day${days > 1 ? "s" : ""}`;
   };
 
   const handleDelete = async (e) => {
     e.stopPropagation();
-    const confirmed = window.confirm("Are you sure you want to delete this poll?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this poll?"
+    );
     if (!confirmed) return;
     try {
       await axios.delete(`${API_URL}/api/polls/${poll.id}`, {
@@ -34,7 +38,11 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
   const handleDuplicate = async (e) => {
     e.stopPropagation();
     try {
-      const res = await axios.post(`http://localhost:8080/api/polls/${poll.id}/duplicate`, {}, { withCredentials: true });
+      const res = await axios.post(
+        `http://localhost:8080/api/polls/${poll.id}/duplicate`,
+        {},
+        { withCredentials: true }
+      );
       const newPollId = res.data?.id;
       if (newPollId) {
         navigate(`/polls/edit/${newPollId}`);
@@ -53,7 +61,8 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
     const pollUrl = poll.slug
       ? `${window.location.origin}/polls/view/${poll.slug}`
       : `${window.location.origin}/polls/results/${poll.id}`;
-    navigator.clipboard.writeText(pollUrl)
+    navigator.clipboard
+      .writeText(pollUrl)
       .then(() => {
         alert("Link copied to clipboard! Share this to invite others to vote.");
       })
@@ -62,36 +71,56 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
       });
   };
 
-  const handleClick = () => {
-        if (!poll?.id) {
-            console.error("Poll is missing ID:", poll);
-            return;
-        }
+  const handleClick = async () => {
+    if (!poll?.id) {
+      console.error("Poll is missing ID:", poll);
+      return;
+    }
 
-        // Check if user owns the poll
-        const isOwner = (poll.ownerId === currentUser?.id) || (poll.userId === currentUser?.id);
-        
-        // If it's a draft and user owns it, open edit modal
-        if (poll.status === "draft" && isOwner) {
-            onEditDraft(poll);
-            return;
-        }
-        
-        // If published and user owns it, go to host view
-        if (poll.status === "published" && isOwner) {
-            navigate(`/polls/host/${poll.id}`);
-        } else {
-            // For voting, always use slug route - backend expects /api/polls/slug/:slug
-            if (poll.slug) {
-                navigate(`/polls/view/${poll.slug}`);
-            } else {
-                console.error("Poll missing slug for public voting:", poll);
-                alert("This poll cannot be accessed - missing slug");
-                return;
-            }
-        }
-        };
+    // Check if user owns the poll
+    const isOwner =
+      poll.ownerId === currentUser?.id || poll.userId === currentUser?.id;
 
+    // If it's a draft and user owns it, open edit modal
+    if (poll.status === "draft" && isOwner) {
+      onEditDraft(poll);
+      return;
+    }
+
+    // If published and user owns it, go to host view
+    if (poll.status === "published" && isOwner) {
+      navigate(`/polls/host/${poll.id}`);
+      return;
+    }
+
+    // non-owner
+
+    try {
+      const res = await axios.get(`${API_URL}/api/polls/${poll.id}/vote`, {
+        withCredentials: true,
+      });
+      if (res.data) {
+        alert("You have already voted in this poll.");
+        return;
+      }
+    } catch (error) {
+      // If the user hasn't voted, the GET /vote route should return 404 or empty
+      if (error.response?.status !== 404) {
+        console.error("Error checking vote status:", error);
+        alert("There was an error. Please try again.");
+        return;
+      }
+    }
+
+    // For voting, always use slug route - backend expects /api/polls/slug/:slug
+    if (poll.slug) {
+      navigate(`/polls/view/${poll.slug}`);
+    } else {
+      console.error("Poll missing slug for public voting:", poll);
+      alert("This poll cannot be accessed - missing slug");
+      return;
+    }
+  };
 
   return (
     <li className="poll-item" onClick={handleClick}>
@@ -114,12 +143,12 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
             </button>
           </div>
 
-          <p className="poll-date">{new Date(poll.createdAt).toLocaleDateString()}</p>
+          <p className="poll-date">
+            {new Date(poll.createdAt).toLocaleDateString()}
+          </p>
 
           <div className="poll-meta">
-            <span className="participants">
-              👤 {poll.participants || 0}
-            </span>
+            <span className="participants">👤 {poll.participants || 0}</span>
             <span className="deadline">🕓 {timeLeft(poll.deadline)}</span>
             <span className={`badge ${poll.status}`}>{poll.status}</span>
           </div>
@@ -128,7 +157,8 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
 
       {isOpen && (
         <ul className="poll-menu" onClick={(e) => e.stopPropagation()}>
-          {((poll.ownerId === currentUser?.id) || (poll.userId === currentUser?.id)) && (
+          {(poll.ownerId === currentUser?.id ||
+            poll.userId === currentUser?.id) && (
             <>
               <li
                 onClick={() => {
@@ -146,7 +176,9 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
                     }
                   }
                 }}
-              >Edit</li>
+              >
+                Edit
+              </li>
               <li onClick={handleDelete}>Delete</li>
             </>
           )}
