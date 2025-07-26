@@ -203,11 +203,11 @@ const VoteForm = ({ poll, readOnly = false }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const rankingsAvailable = orderedOptions.filter(
-      (opt) => !deletedOptions.has(opt.id)
-    ).length;
-
-    const hasRankedAll = movedOptionIds.size >= rankingsAvailable;
+    
+    const hasRankedAll = orderedOptions
+    .filter((opt) => !deletedOptions.has(opt.id))
+    .every((opt) => movedOptionIds.has(opt.id));
+  
 
     // Show popup if not all options moved
     if (!hasRankedAll) {
@@ -216,6 +216,14 @@ const VoteForm = ({ poll, readOnly = false }) => {
       );
       if (!confirmProceed) return;
     }
+
+      // Convert rankings object to array format
+  const formattedRankings = Object.entries(rankings)
+  .filter(([_, rank]) => rank !== null) // filter out nulls if needed
+  .map(([optionId, rank]) => ({
+    optionId: parseInt(optionId),
+    rank: rank
+  }));
 
     setSubmitting(true);
     setMoveWarning("");
@@ -227,7 +235,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
         credentials: "include",
         body: JSON.stringify({
           pollId: poll.id,
-          rankings: rankings,
+          rankings: formattedRankings,
         }),
       });
       // await axios.post("http://localhost:8080/api/:pollId/vote",
