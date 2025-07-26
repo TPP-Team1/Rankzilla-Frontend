@@ -1,8 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../shared";
 
-const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
+const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
   const navigate = useNavigate();
 
   const timeLeft = (deadline) => {
@@ -18,7 +19,7 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
     const confirmed = window.confirm("Are you sure you want to delete this poll?");
     if (!confirmed) return;
     try {
-      await axios.delete(`http://localhost:8080/api/polls/${poll.id}`, {
+      await axios.delete(`${API_URL}/api/polls/${poll.id}`, {
         withCredentials: true,
       });
       console.log("✅ Poll deleted:", poll.id);
@@ -29,15 +30,54 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
     }
   };
 
+  // Duplicate poll handler
+  const handleDuplicate = async (e) => {
+    e.stopPropagation();
+    try {
+      const res = await axios.post(`http://localhost:8080/api/polls/${poll.id}/duplicate`, {}, { withCredentials: true });
+      const newPollId = res.data?.id;
+      if (newPollId) {
+        navigate(`/polls/edit/${newPollId}`);
+      } else {
+        window.location.reload(); // fallback, but no alert
+      }
+    } catch (err) {
+      console.error(" Failed to duplicate poll:", err);
+      alert("Could not duplicate poll.");
+    }
+  };
+
+  // invite handler: copy poll link to clipboard and show message
+  const handleInvite = (e) => {
+    e.stopPropagation();
+    const pollUrl = poll.slug
+      ? `${window.location.origin}/polls/view/${poll.slug}`
+      : `${window.location.origin}/polls/results/${poll.id}`;
+    navigator.clipboard.writeText(pollUrl)
+      .then(() => {
+        alert("Link copied to clipboard! Share this to invite others to vote.");
+      })
+      .catch(() => {
+        alert("Failed to copy link.");
+      });
+  };
+
   const handleClick = () => {
         if (!poll?.id) {
             console.error("Poll is missing ID:", poll);
             return;
         }
 
-        // Check if user owns the poll and it's published - go to host view
-        // Note: Check both ownerId and userId in case backend uses different property name
+        // Check if user owns the poll
         const isOwner = (poll.ownerId === currentUser?.id) || (poll.userId === currentUser?.id);
+        
+        // If it's a draft and user owns it, open edit modal
+        if (poll.status === "draft" && isOwner) {
+            onEditDraft(poll);
+            return;
+        }
+        
+        // If published and user owns it, go to host view
         if (poll.status === "published" && isOwner) {
             navigate(`/polls/host/${poll.id}`);
         } else {
@@ -89,15 +129,42 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
       {isOpen && (
         <ul className="poll-menu" onClick={(e) => e.stopPropagation()}>
           <li
-            className={poll.participated ? "disabled" : ""}
-            onClick={() => {
-              if (!poll.participated) navigate(`/polls/edit/${poll.id}`);
+            className={poll.status !== "draft" ? "disabled" : ""}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (poll.status === "draft") {
+                navigate(`/polls/edit/${poll.id}`);
+              }
             }}
-          >Edit</li>
-          <li onClick={() => console.log("Duplicate", poll.id)}>Duplicate</li>
-          <li onClick={() => console.log("Invite", poll.id)}>Invite</li>
+          > Edit </li>
+          <li
+            onClick={async (e) => {
+              e.stopPropagation();
+              try {
+                const res = await axios.post(`${API_URL}/api/polls/${poll.id}/duplicate`, {}, {
+                  withCredentials: true,
+                });
+                const duplicated = await res.data;
+                navigate(`/polls/edit/${duplicated.id}`);
+              } catch (err) {
+                console.error("Failed to duplicate:", err);
+                alert("Could not duplicate poll.");
+              }
+            }}
+          >
+            Duplicate
+          </li>
+          <li
+            onClick={(e) => {
+              e.stopPropagation();
+              const url = `${window.location.origin}/polls/view/${poll.slug}`;
+              navigator.clipboard.writeText(url);
+              alert("Poll link copied to clipboard!");
+            }}
+          >
+            Invite
+          </li>
           <li onClick={() => navigate(`/polls/results/${poll.id}`)}>Results</li>
-          <li onClick={handleDelete}>Delete</li>
         </ul>
       )}
     </li>
