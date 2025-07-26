@@ -138,6 +138,28 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
     }
   };
 
+  const handleSaveDraft = async (e) => {
+    e.preventDefault();
+    try {
+        const formattedRankings = orderedOptions.filter((opt) => !deletedOptions.has(opt.id))
+          .map((opt, index) => ({
+            optionId: opt.id,
+            rank: index + 1,
+          }));
+
+        const res = await axios.patch(`${API_URL}/api/polls/${poll.id}/vote/${voteID}`, {
+          submitted: false,
+          rankings: formattedRankings,
+        },
+         { 
+          withCredentials: true});
+        alert("Draft saved successfully!");
+    } catch (error) {
+        console.error("Failed to save draft:", error);
+        setError("Failed to save draft. Please try again.");
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="vote-form">
       <h4>
@@ -226,6 +248,11 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
       <button type="submit" disabled={readOnly || submitting}>
         Submit Vote
       </button>
+
+      <button onClick={handleSaveDraft}>
+        Save Draft
+      </button>
+
     </form>
   );
 };
