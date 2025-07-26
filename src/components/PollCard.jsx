@@ -133,7 +133,7 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
             onClick={(e) => {
               e.stopPropagation();
               if (poll.status === "draft") {
-                navigate(`/polls/edit/${poll.id}`);
+                onEditDraft(poll);
               }
             }}
           > Edit </li>
