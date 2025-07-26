@@ -187,7 +187,9 @@ const VoteForm = ({ poll, readOnly = false }) => {
     setSubmitting(true);
 
     try {
+
       await fetch(`${API_URL}/api/polls/${poll.id}/vote`, {
+
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
