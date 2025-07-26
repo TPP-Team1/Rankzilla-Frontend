@@ -73,10 +73,11 @@ const HostPollView = () => {
       await axios.patch(`${API_URL}/api/polls/${id}`, {
 
         deadline: endPollNow,
+        status: "ended",
       }, {
         withCredentials: true,
       });
-      setPoll((prev) => ({ ...prev, deadline: endPollNow, }));
+      setPoll((prev) => ({ ...prev, deadline: endPollNow, status: "ended" }));
       setEditingDeadline(false);
     } catch (err) {
       console.error("Failed to end poll:", err);

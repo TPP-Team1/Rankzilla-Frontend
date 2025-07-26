@@ -52,7 +52,7 @@ const Dashboard = ({ user: currentUser }) => {
             : poll
         )
       );
-    }, 5000); // Check every 5 seconds
+    }, 1000); // Check every second
 
     return () => clearInterval(interval);
   }, []);
