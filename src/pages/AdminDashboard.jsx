@@ -31,15 +31,13 @@ const AdminDashboard = ({ user }) => {
       </div>
 
       {activeTab === "polls" && (
-        <div>
-          <h3>All Polls</h3>
+        <div className="admin-tab-container">
           <AdminPollsTab />
         </div>
       )}
 
       {activeTab === "users" && (
-        <div>
-          <h3>All Users</h3>
+        <div className="admin-tab-container">
           <AdminUsersTab />
         </div>
       )}

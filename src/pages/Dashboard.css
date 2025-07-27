@@ -157,3 +157,93 @@
   cursor: not-allowed;
   background-color: #fafafa;
 }
+
+.admin-dashboard button {
+  padding: 0.5rem;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border 0.2s;
+  margin-bottom: 0.5rem;
+}
+.admin-dashboard button:hover, .admin-dashboard .active-tab {
+  background: #5DAAF2;
+  color: #fff;
+  border-color: #5DAAF2;
+  font-weight: 600;
+}
+.admin-dashboard h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #e63946;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+}
+.admin-tab-container {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 2rem 1.5rem;
+  margin-bottom: 2rem;
+  margin-top: 0.5rem;
+}
+.admin-tab-container table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  margin-bottom: 0;
+}
+.admin-tab-container th, .admin-tab-container td {
+  padding: 1rem 1.2rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+.admin-tab-container th {
+  background: #f7f7f7;
+  font-weight: 600;
+  color: #333;
+}
+.admin-tab-container tr:last-child td {
+  border-bottom: none;
+}
+.admin-tab-container tr:hover {
+  background: #f5faff;
+}
+.admin-tab-container button {
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.admin-tab-container button:active {
+  opacity: 0.85;
+}
+
+.create-btn {
+  background: #5DAAF2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 6px rgba(93,170,242,0.08);
+}
+.create-btn:hover {
+  background: #368ed6;
+}

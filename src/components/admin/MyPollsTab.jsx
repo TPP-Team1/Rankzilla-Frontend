@@ -114,7 +114,6 @@ const MyPollsTab = ({ user }) => {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h3>My Polls</h3>
         <button onClick={() => setIsModalOpen(true)}>Create Poll</button>
       </div>
 
