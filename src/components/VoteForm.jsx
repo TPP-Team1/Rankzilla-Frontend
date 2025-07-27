@@ -1,19 +1,22 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { API_URL } from "../shared";
 
 const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
-  const [rankings, setRankings] = useState({});
-  console.log("this is rankins---->", rankings)
+  const navigate = useNavigate();
+
+  const [rankings, setRankings] = useState([]);
+  // console.log("this is rankins---->", rankings)
   const [submitting, setSubmitting] = useState(false);
   const [orderedOptions, setOrderedOptions] = useState([]);
-  console.log("this is ordered options", orderedOptions)
+  // console.log("this is ordered options", orderedOptions)
   const [draggedItem, setDraggedItem] = useState(null);
-  console.log("dragged--->", draggedItem)
+  // console.log("dragged--->", draggedItem)
   const [deletedOptions, setDeletedOptions] = useState(new Set());
 
   const isValidEmail = (email) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   const isGuest = !user;
@@ -93,35 +96,38 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
     });
 
   const handleSubmit = async (e) => {
-    /* e.preventDefault();
-    if (isGuest && !email) {
-      if (!email.trim()) {
-        alert("Please enter your email before submitting.");
-        return;
-      }
-      if (!isValidEmail(email.trim())) {
-        alert("Please enter a valid email address.");
-        return;
-      }
-    }
-    */
+    e.preventDefault();
+    // if (isGuest && !email) {
+    //   if (!email.trim()) {
+    //     alert("Please enter your email before submitting.");
+    //     return;
+    //   }
+    //   if (!isValidEmail(email.trim())) {
+    //     alert("Please enter a valid email address.");
+    //     return;
+    //   }
+    // }
+
 
 
     setSubmitting(true);
     try {
 
 
-
-      await fetch(`${API_URL}/api/polls/${poll.id}/vote`, {
-
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
+      console.log("Submitting vote:", {
+        url: `${API_URL}/api/polls/${poll.id}/vote`,
+        payload: {
           pollId: poll.id,
-          rankings: rankings,
-          /*...(isGuest && { email }),*/
-        }),
+          rankings,
+          email,
+        }
+      });
+      await axios.post(`${API_URL}/api/polls/${poll.id}/vote`, {
+        pollId: poll.id,
+        rankings,
+        email: email || null,
+      }, {
+        withCredentials: true
       });
       // await axios.post("http://localhost:8080/api/:pollId/vote",
       //   rankings,
@@ -129,7 +135,8 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
       //  )
 
       alert("Vote submitted!");
-      setRankings({});
+      setRankings([]);
+      navigate("/thank-you");
     } catch (err) {
       console.error("Failed to submit vote", err);
       alert("Failed to submit vote.");
@@ -140,6 +147,20 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
 
   return (
     <form onSubmit={handleSubmit} className="vote-form">
+      <div style={{ marginBottom: "1rem" }}>
+        <label>
+          Enter your email if you would like to receive the final result:
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+            title="Enter a valid email address"
+            style={{ marginLeft: "0.5rem", padding: "0.3rem" }}
+          />
+        </label>
+      </div>
       <h4>
         Drag to rank the options (top = highest rank). Click X to remove options from ranking:
       </h4>
@@ -162,18 +183,17 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
         </div>
       )}
       */}
-      
+
       <div className="ranking-options">
         {orderedOptions.map((option, index) => {
           const isDeleted = deletedOptions.has(option.id);
-          const currentRank = rankings[option.id];
+          const currentRank = rankings.find(r => r.optionId === option.id)?.rank;
 
           return (
             <div
               key={option.id}
-              className={`ranking-item ${draggedItem === index ? "dragging" : ""} ${
-                isDeleted ? "deleted" : ""
-              }`}
+              className={`ranking-item ${draggedItem === index ? "dragging" : ""} ${isDeleted ? "deleted" : ""
+                }`}
               draggable={!readOnly && !isDeleted}
               onDragStart={(e) => !isDeleted && handleDragStart(e, index)}
               onDragOver={(e) => !isDeleted && handleDragOver(e, index)}
@@ -204,8 +224,10 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
         <p>Current Rankings:</p>
         <ul>
           {orderedOptions.map((option) => {
-            const rank = rankings[option.id];
             const isDeleted = deletedOptions.has(option.id);
+            const found = rankings.find(r => r.optionId === option.id);
+            const rank = found?.rank;
+
             return (
               <li key={option.id}>
                 {isDeleted ? (
