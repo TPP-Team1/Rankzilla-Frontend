@@ -14,6 +14,7 @@ const HostPollView = () => {
   const [editingDeadline, setEditingDeadline] = useState(false);
   const [newDeadline, setNewDeadline] = useState("");
   const [copySuccess, setCopySuccess] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     const fetchPoll = async () => {
@@ -116,7 +117,8 @@ const HostPollView = () => {
           {poll.status === "ended" ? (
             <p style={{ color: "#888" }}><em>This poll has ended. Voting is disabled.</em></p>
           ) : (
-            <VoteForm poll={poll} readOnly={false} />
+            <VoteForm poll={poll} user={true} email={email} setEmail={setEmail} readOnly={false} />
+
           )}
         </div>
 
