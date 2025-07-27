@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import PollCard from "../components/PollCard";
+import PollFormModal from "../components/PollFormModal"; // Import the modal component
 import { API_URL } from "../shared";
 import "./Dashboard.css";
 
@@ -8,6 +9,7 @@ import "./Dashboard.css";
 const Dashboard = ({ user: currentUser }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDraft, setEditingDraft] = useState(null);
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,13 +22,15 @@ const Dashboard = ({ user: currentUser }) => {
 
   const fetchPolls = async () => {
     setLoading(true);
+    let url = `${API_URL}/api/polls`;
+    if (filter === "created") url = `${API_URL}/api/polls/created`;
+    if (filter === "participated") url = `${API_URL}/api/polls/participated`;
     try {
-      const res = await fetch(`${API_URL}/api/polls`, {
+      const res = await fetch(url, {
         credentials: "include",
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch polls");
-
       setPolls(data);
       setError("");
     } catch (err) {
@@ -38,7 +42,7 @@ const Dashboard = ({ user: currentUser }) => {
 
   useEffect(() => {
     fetchPolls();
-  }, [location.pathname]); // Re-fetch when navigating to dashboard
+  }, [location.pathname, filter]); // Re-fetch when navigating or filter changes
 
   // Automatically close polls after deadline without refresh
   useEffect(() => {
@@ -135,7 +139,7 @@ const Dashboard = ({ user: currentUser }) => {
       </header>
 
       <nav className="dashboard-nav">
-        <button onClick={() => navigate("/polls/new")}>+ Create a Poll</button>
+        <button onClick={() => setIsModalOpen(true)}>+ Create a Poll</button>
         <input
           type="text"
           placeholder="Search by title..."
@@ -176,12 +180,12 @@ const Dashboard = ({ user: currentUser }) => {
           />
         ))}
       </ul>
-      {/* <PollFormModal
-                  isOpen={isModalOpen}
-                  onClose={handleCloseModal}
-                  onPollCreated={fetchPolls}
-                  initialData={editingDraft}
-                />*/}
+      <PollFormModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onPollCreated={fetchPolls}
+        initialData={editingDraft}
+      />
     </div>
   );
 };
