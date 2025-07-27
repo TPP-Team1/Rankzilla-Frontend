@@ -34,15 +34,11 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
   const handleDuplicate = async (e) => {
     e.stopPropagation();
     try {
-      const res = await axios.post(`http://localhost:8080/api/polls/${poll.id}/duplicate`, {}, { withCredentials: true });
-      const newPollId = res.data?.id;
-      if (newPollId) {
-        navigate(`/polls/edit/${newPollId}`);
-      } else {
-        window.location.reload(); // fallback, but no alert
-      }
+      const res = await axios.post(`${API_URL}/api/polls/${poll.id}/duplicate`, {}, { withCredentials: true });
+      // Only refresh dashboard, do not navigate
+      window.location.reload();
     } catch (err) {
-      console.error(" Failed to duplicate poll:", err);
+      console.error("Failed to duplicate poll:", err);
       alert("Could not duplicate poll.");
     }
   };
@@ -133,27 +129,23 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
             onClick={(e) => {
               e.stopPropagation();
               if (poll.status === "draft") {
-                onEditDraft(poll);
+                navigate(`/polls/edit/${poll.id}`);
               }
             }}
           > Edit </li>
           <li
-            onClick={async (e) => {
-              e.stopPropagation();
-              try {
-                const res = await axios.post(`${API_URL}/api/polls/${poll.id}/duplicate`, {}, {
-                  withCredentials: true,
-                });
-                const duplicated = await res.data;
-                navigate(`/polls/edit/${duplicated.id}`);
-              } catch (err) {
-                console.error("Failed to duplicate:", err);
-                alert("Could not duplicate poll.");
-              }
-            }}
+            onClick={handleDuplicate}
           >
             Duplicate
           </li>
+          {(poll.ownerId === currentUser?.id || poll.userId === currentUser?.id || currentUser?.role === 'admin') && (
+            <li
+              onClick={handleDelete}
+              style={{ color: 'red',  }}
+            >
+              Delete
+            </li>
+          )}
           <li
             onClick={(e) => {
               e.stopPropagation();
