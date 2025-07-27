@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
+import "./UserProfile.css"
 
 const UserProfile = () => {
   const { userId } = useParams();
