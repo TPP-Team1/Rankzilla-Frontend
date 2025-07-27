@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../shared";
+import "./VoteForm.css";
 
 const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
   const navigate = useNavigate();
@@ -36,7 +37,10 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
     let newRankings = [];
     orderedOptions.forEach((option, index) => {
       if (deletedOptions.has(option.id)) {
-        newRankings[option.id] = null;
+        newRankings.push({
+          optionId: option.id,
+          rank: null
+        });
       } else {
         const nonDeletedBefore = orderedOptions
           .slice(0, index)
@@ -80,7 +84,7 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
             restoredMap[r.optionId] = r.rank;
           });
 
-          setRankings(restoredMap);
+          setRankings(restored);
 
           // Set ordered options based on restored rankings
 
