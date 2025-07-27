@@ -137,7 +137,7 @@ const Dashboard = ({ user: currentUser }) => {
       </header>
 
       <nav className="dashboard-nav">
-        <button onClick={() => navigate("/polls/new")}>+ Create a Poll</button>
+        <button onClick={() => setIsModalOpen(true)}>+ Create a Poll</button>
         <input
           type="text"
           placeholder="Search by title..."
