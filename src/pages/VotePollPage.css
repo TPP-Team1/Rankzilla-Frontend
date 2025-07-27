@@ -1,0 +1,90 @@
+.vote-poll-overlay {
+  min-height: 100vh;
+  background-color: rgba(255, 255, 255, 0.114);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 4rem 1.5rem;
+}
+
+.vote-poll-page {
+  width: 100%;
+  max-width: 800px;
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #222;
+}
+
+.vote-poll-page h2 {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.poll-meta {
+  background: #f7f9fb;
+  padding: 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.poll-meta h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.poll-meta p {
+  margin-top: 0.5rem;
+  color: #555;
+}
+
+.vote-ended,
+.already-voted {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #444;
+  margin-top: 1.5rem;
+}
+
+.vote-ended em {
+  color: #888;
+}
+
+.vote-loading,
+.vote-error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+.vote-error {
+  color: red;
+}
+
+.back-btn-wrapper {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.back-btn {
+  padding: 0.6rem 1.4rem;
+  background-color: #577dbe;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.back-btn:hover {
+  background-color: #3c5c9e;
+}
+
