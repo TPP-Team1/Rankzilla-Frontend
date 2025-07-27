@@ -16,7 +16,7 @@ const ViewResultsPage = ({ user }) => {
   const [error, setError] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
   const [isPollEnded, setIsPollEnded] = useState(false);
-  const [timeLeft, setTimeLeft] = useState("");
+
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -105,7 +105,7 @@ const ViewResultsPage = ({ user }) => {
         {results.length > 0 && <RoundBreakdown rounds={results} />}
 
       </div>
-    </div>
+      </>
   );
 };
 
