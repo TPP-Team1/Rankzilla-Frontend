@@ -45,7 +45,7 @@ const HostPollView = () => {
       if (now >= deadlineTime) {
         clearInterval(interval);
         try {
-          await axios.put(`http://localhost:8080/api/polls/${id}`, {
+          await axios.patch(`http://localhost:8080/api/polls/${id}`, {
             status: "ended",
           }, {
             withCredentials: true,
