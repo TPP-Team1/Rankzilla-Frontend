@@ -61,6 +61,14 @@
   color: #5DAAF2;
 }
 
+/* Active link styles */
+.nav-link.active, .createbutton-nav.active {
+  background-color: #5DAAF2;
+  color: #0c0e26 !important;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(93,170,242,0.08);
+}
+
 /* Auth or user section */
 .nav-links {
   display: flex;
@@ -99,4 +107,24 @@
 
 .logout-btn:hover {
   background-color: #c82333;
+}
+
+/* Dashboard create button */
+.createbutton-nav {
+  padding: 0.5rem 1.2rem;
+  font-size: 0.95rem;
+  border: 1px solid #5DAAF2;
+  border-radius: 4px;
+  background-color: #0c0e26;
+  color: #5DAAF2;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border 0.2s, color 0.2s;
+  box-shadow: none;
+}
+
+.createbutton-nav:hover {
+  background-color: #1a1b3b;
+  color: #fff;
+  border-color: #8ccfff;
 }
