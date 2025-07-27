@@ -65,6 +65,47 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
       return copy;
     });
 
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError(null);
+  setSubmitting(true);
+
+  const hasRanked = Object.values(rankings).some(rank => rank !== null);
+  const isExpired = poll?.deadline && new Date() > new Date(poll.deadline);
+
+  if (!hasRanked) {
+    setError("You must rank at least one option before submitting.");
+    setSubmitting(false);
+    return;
+  }
+
+  if (isExpired) {
+    setError("This poll has expired and can no longer be voted on.");
+    setSubmitting(false);
+    return;
+  }
+
+  const votingRanks = orderedOptions.map((option, index) => {
+    const isDeleted = deletedOptions.has(option.id);
+    const rank = rankings[option.id];
+
+    return {
+      pollOptionId: option.id,
+      rank: isDeleted ? null : rank,
+      position: index,
+    };
+  });
+
+  try {
+    await fetch(`http://localhost:8080/api/polls/${poll.id}/votes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        pollId: poll.id,
+        votingRanks: votingRanks,
+      }),
+    });
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isGuest && !isValidEmail(email)) {
@@ -89,33 +130,16 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
         { withCredentials: true }
       );
 
-      alert("Vote submitted successfully!");
-      navigate("/thank-you");
+      alert("Vote submitted!");
+      setSubmitted(true); //to freeze ui
+      setRankings({});
     } catch (err) {
-      console.error("Submit error:", err);
-      alert("Failed to submit vote.");
+      console.error("Failed to submit vote", err);
+      setError("Failed to submit vote. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
-
-  const handleSaveDraft = async () => {
-    if (isGuest || !voteId) return;
-    try {
-      await axios.patch(
-        `${API_URL}/api/polls/${poll.id}/vote/${voteId}`,
-        { submitted: false, rankings },
-        { withCredentials: true }
-      );
-      alert("Draft saved.");
-    } catch (err) {
-      console.error("Save draft error:", err);
-      alert("Could not save draft.");
-    }
-  };
-
-  if (!poll) return <div className="vote-form">Loading poll...</div>;
-  if (!poll.pollOptions?.length) return <div>No poll options provided.</div>;
 
   return (
     <form className="vote-form" onSubmit={handleSubmit}>
