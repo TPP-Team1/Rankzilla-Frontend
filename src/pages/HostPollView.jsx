@@ -45,7 +45,7 @@ const HostPollView = () => {
       if (now >= deadlineTime) {
         clearInterval(interval);
         try {
-          await axios.patch(`http://localhost:8080/api/polls/${id}`, {
+          await axios.patch(`${API_URL}/api/polls/${id}`, {
             status: "ended",
           }, {
             withCredentials: true,
@@ -102,10 +102,10 @@ const HostPollView = () => {
       setEditingDeadline(false);
 
       // Send results email
-    await axios.post(`${API_URL}/api/email/send-email/${id}`, {}, {
-      withCredentials: true,
-    });
-    alert("Poll ended and results emailed to voters!");
+      await axios.post(`${API_URL}/api/email/send-email/${id}`, {}, {
+        withCredentials: true,
+      });
+      alert("Poll ended and results emailed to voters!");
 
 
     } catch (err) {
