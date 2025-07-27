@@ -36,13 +36,13 @@ const NavBar = ({ user, onLogout }) => {
               </>
             )}
 
-            <span className="username">Welcome, {user.username ? (
-                <Link to={`/users/${user.id}`} className="username-link">
-                  {user.username}
-                </Link>
-              ) : (
-                "Guest"
-              )}!</span>
+            <button
+              className={`profile-nav-btn nav-link${location.pathname === `/users/${user.id}` ? " active" : ""}`}
+              onClick={() => window.location.href = `/users/${user.id}`}
+              type="button"
+            >
+              {`Welcome, ${user.username}!`}
+            </button>
             <button onClick={onLogout} className="logout-btn">
               Logout
             </button>

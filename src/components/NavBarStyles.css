@@ -128,3 +128,31 @@
   color: #fff;
   border-color: #8ccfff;
 }
+
+/* Profile navigation button */
+.profile-nav-btn {
+  background: none;
+  border: none;
+  color: #dcdcdc;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: background 0.2s, color 0.2s;
+  text-decoration: none;
+  outline: none;
+  margin-right: 0.5rem;
+}
+
+.profile-nav-btn:hover {
+  background-color: #1a1b3b;
+  color: #5DAAF2;
+}
+
+.profile-nav-btn.active {
+  background-color: #5DAAF2;
+  color: #0c0e26 !important;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(93,170,242,0.08);
+}
