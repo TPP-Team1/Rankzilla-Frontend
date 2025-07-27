@@ -138,12 +138,14 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
           >
             Duplicate
           </li>
-          <li
-            onClick={handleDelete}
-            style={{ color: 'red', }}
-          >
-            Delete
-          </li>
+          {(poll.ownerId === currentUser?.id || poll.userId === currentUser?.id || currentUser?.role === 'admin') && (
+            <li
+              onClick={handleDelete}
+              style={{ color: 'red',  }}
+            >
+              Delete
+            </li>
+          )}
           <li
             onClick={(e) => {
               e.stopPropagation();
