@@ -14,8 +14,11 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
   const [draggedItem, setDraggedItem] = useState(null);
   // console.log("dragged--->", draggedItem)
   const [deletedOptions, setDeletedOptions] = useState(new Set());
+  const [voteId, setVoteId] = useState(null);
+  const [movedOptionIds, setMovedOptionIds] = useState(new Set());
 
   const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
@@ -41,8 +44,8 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
 
         newRankings.push({
           optionId: option.id,
-          rank: nonDeletedBefore + 1
-        })
+          rank: nonDeletedBefore + 1,
+        });
 
         // newRankings.optionId = option.id,
         //   newRankings.ranking = index
@@ -51,6 +54,80 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
     });
     setRankings(newRankings);
   }, [orderedOptions, deletedOptions]);
+
+  useEffect(() => {
+    const fetchOrCreateVote = async () => {
+      if (!poll?.id || readOnly) return;
+
+      try {
+        // Try to fetch vote
+        const res = await axios.get(`${API_URL}/api/polls/${poll.id}/vote`, {
+          withCredentials: true,
+        });
+
+        const voteData = res.data;
+        setVoteId(voteData.id);
+
+        // Restore saved rankings if they exist
+        if (voteData.votingRanks) {
+          const restored = voteData.votingRanks.map((rank) => ({
+            optionId: rank.pollOptionId,
+            rank: rank.rank,
+          }));
+
+          const restoredMap = {};
+          restored.forEach((r) => {
+            restoredMap[r.optionId] = r.rank;
+          });
+
+          setRankings(restoredMap);
+
+          // Set ordered options based on restored rankings
+
+          if (poll?.pollOptions) {
+            const sortedOptions = [...poll.pollOptions]
+              .filter(
+                (opt) =>
+                  restoredMap[opt.id] !== undefined &&
+                  restoredMap[opt.id] !== null
+              )
+              .sort((a, b) => restoredMap[a.id] - restoredMap[b.id]);
+
+            const unranked = poll.pollOptions.filter(
+              (opt) => restoredMap[opt.id] === undefined
+            );
+
+            setOrderedOptions([...sortedOptions, ...unranked]);
+
+            const deleted = new Set(
+              poll.pollOptions
+                .filter((opt) => restoredMap[opt.id] === null)
+                .map((opt) => opt.id)
+            );
+            setDeletedOptions(deleted);
+          }
+        }
+      } catch (err) {
+        // Vote doesn't exist, so create it
+        try {
+          const createRes = await axios.post(
+            `${API_URL}/api/polls/${poll.id}/vote`,
+            {
+              submitted: false,
+              rankings: [],
+            },
+            { withCredentials: true }
+          );
+
+          setVoteId(createRes.data.id);
+        } catch (createErr) {
+          console.error("Failed to create vote:", createErr);
+        }
+      }
+    };
+
+    fetchOrCreateVote();
+  }, [poll?.id, readOnly]);
 
   if (!poll) return <div className="vote-form">Loading poll data...</div>;
   if (!poll.pollOptions?.length) {
@@ -67,8 +144,9 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
   const handleDragStart = (e, index) => {
     setDraggedItem(index);
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/html", e.target.parentNode);
-    e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
+    //e.dataTransfer.setData("text/html", e.target.parentNode);
+    //e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
+    e.dataTransfer.setDragImage(e.currentTarget, 0, 0);
   };
 
   const handleDragOver = (e, index) => {
@@ -81,6 +159,13 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
     newOrderedOptions.splice(index, 0, draggedOption);
     setOrderedOptions(newOrderedOptions);
     setDraggedItem(index);
+
+    //tracks moved options
+    setMovedOptionIds((prev) => {
+      const updated = new Set(prev);
+      updated.add(draggedOption.id);
+      return updated;
+    });
   };
 
   const handleDragEnd = () => setDraggedItem(null);
@@ -145,6 +230,33 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
     }
   };
 
+  const handleSaveDraft = async (e) => {
+    e.preventDefault();
+    try {
+      const formattedRankings = orderedOptions
+        .filter((opt) => !deletedOptions.has(opt.id))
+        .map((opt, index) => ({
+          optionId: opt.id,
+          rank: index + 1,
+        }));
+
+      const res = await axios.patch(
+        `${API_URL}/api/polls/${poll.id}/vote/${voteId}`,
+        {
+          submitted: false,
+          rankings: formattedRankings,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+      alert("Draft saved successfully!");
+    } catch (error) {
+      console.error("Failed to save draft:", error);
+      setError("Failed to save draft. Please try again.");
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="vote-form">
       <div style={{ marginBottom: "1rem" }}>
@@ -162,7 +274,8 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
         </label>
       </div>
       <h4>
-        Drag to rank the options (top = highest rank). Click X to remove options from ranking:
+        Drag to rank the options (top = highest rank). Click X to remove options
+        from ranking:
       </h4>
 
       {/*{isGuest && (
@@ -184,6 +297,7 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
       )}
       */}
 
+
       <div className="ranking-options">
         {orderedOptions.map((option, index) => {
           const isDeleted = deletedOptions.has(option.id);
@@ -192,8 +306,8 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
           return (
             <div
               key={option.id}
-              className={`ranking-item ${draggedItem === index ? "dragging" : ""} ${isDeleted ? "deleted" : ""
-                }`}
+              className={`ranking-item ${draggedItem === index ? "dragging" : ""
+                } ${isDeleted ? "deleted" : ""}`}
               draggable={!readOnly && !isDeleted}
               onDragStart={(e) => !isDeleted && handleDragStart(e, index)}
               onDragOver={(e) => !isDeleted && handleDragOver(e, index)}
@@ -202,15 +316,25 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
               <div className="ranking-content">
                 {!isDeleted && <span className="drag-handle">⋮⋮</span>}
                 <span className="option-text">{option.optionText}</span>
-                {!isDeleted && currentRank && <span className="rank-badge">#{currentRank}</span>}
+                {!isDeleted && currentRank && (
+                  <span className="rank-badge">#{currentRank}</span>
+                )}
               </div>
               <div className="option-actions">
                 {isDeleted ? (
-                  <button type="button" onClick={() => handleRestoreOption(option.id)} disabled={readOnly}>
+                  <button
+                    type="button"
+                    onClick={() => handleRestoreOption(option.id)}
+                    disabled={readOnly}
+                  >
                     Restore
                   </button>
                 ) : (
-                  <button type="button" onClick={() => handleDeleteOption(option.id)} disabled={readOnly}>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteOption(option.id)}
+                    disabled={readOnly}
+                  >
                     ✕
                   </button>
                 )}
@@ -248,6 +372,8 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
       <button type="submit" disabled={readOnly || submitting}>
         Submit Vote
       </button>
+
+      <button onClick={handleSaveDraft} disabled={movedOptionIds.size === 0 || submitting}>Save Draft</button>
     </form>
   );
 };
