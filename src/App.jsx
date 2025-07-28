@@ -16,7 +16,7 @@ import CreatePoll from "./pages/CreatePoll";
 import VotePollPage from "./pages/VotePollPage";
 import HostPollView from "./pages/HostPollView";
 import ThankYouPage from "./pages/Thankyou";
-//import Demo from "./pages/Demo";
+import DemoPage from "./pages/DemoPage";
 
 import { API_URL } from "./shared";
 
@@ -146,7 +146,7 @@ const App = () => {
           <Route path="/login" element={<Login setUser={setUser} />} />
 
           {/* Demo route (optional) */}
-          {/* <Route path="/demo" element={<Demo />} /> */}
+          <Route path="/demo" element={<DemoPage />} />
 
           {/* Smart redirect based on admin status */}
           <Route path="/dashboard" element={<SmartDashboardRedirect user={user} />} />
