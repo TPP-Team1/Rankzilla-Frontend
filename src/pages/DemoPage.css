@@ -1,0 +1,449 @@
+/* DemoPage static poll form modal styles (copied from PollFormModal.css) */
+
+.demo-page .modal-content {
+  background: rgba(17, 8, 44, 0.807); 
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.25);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  position: relative;
+}
+.demo-page .modal-content h2,
+.demo-page .modal-content h3 {
+  margin: 0;
+  font-weight: 600;
+  color: white;
+}
+.demo-page .modal-content input[type="text"],
+.demo-page .modal-content input[type="datetime-local"],
+.demo-page .modal-content textarea,
+.demo-page .modal-content input {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  outline: none;
+}
+.demo-page .modal-content input::placeholder,
+.demo-page .modal-content textarea::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+.demo-page .modal-content textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+.demo-page .modal-content label {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.demo-page .poll-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.demo-page .option-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.demo-page .remove-option-btn {
+  background: none;
+  border: none;
+  color: #ff8080;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.demo-page .add-option-btn {
+  background-color: #5ea0f2;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  width: fit-content;
+}
+.demo-page .add-option-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.demo-page .checkbox-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+.demo-page .checkbox-row label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.demo-page .datetime-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+.demo-page .modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.demo-page button.publish,
+.demo-page button.draft {
+  padding: 0.6rem 1.4rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.demo-page button.publish {
+  background-color: #2ecc71;
+  color: white;
+}
+.demo-page button.draft {
+  background-color: #5ea0f2;
+  color: white;
+}
+.demo-page button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.demo-page .close-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  font-size: 1.8rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+.demo-page .error {
+  color: #ffcdd2;
+  font-size: 0.9rem;
+}
+.demo-page .loading {
+  color: #d3f1ff;
+  font-size: 0.95rem;
+}
+.demo-page .ranking-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.08); /* subtle highlight for options */
+    border: 1px solid #5ea0f2;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    cursor: grab;
+    transition: background-color 0.2s ease, transform 0.1s ease-in-out, border-color 0.2s;
+}
+.demo-page .ranking-item.dragging {
+    opacity: 0.8;
+    transform: scale(1.03);
+    background-color: #5ea0f2;
+    border-color: #2ecc71;
+}
+.demo-page .ranking-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.demo-page .option-text {
+    flex-grow: 1;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #fff;
+}
+.demo-page .rank-badge {
+    background: #2ecc71;
+    color: white;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+}
+.demo-page .modal-buttons button.publish {
+    background-color: #2ecc71;
+    color: white;
+}
+.demo-page .modal-buttons button.draft {
+    background-color: #5ea0f2;
+    color: white;
+}
+.demo-page .modal-buttons button {
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: none;
+    padding: 0.6rem 1.4rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    transition: background 0.2s, color 0.2s;
+}
+.demo-page .modal-buttons button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+.demo-page .rankings-summary {
+    margin-top: 2rem;
+    padding: 1rem;
+    border-top: 1px solid #5ea0f2;
+    background-color: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    color: #fff;
+}
+.demo-page .rankings-summary ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+.demo-page .rankings-summary li {
+    margin: 0.25rem 0;
+    font-weight: 600;
+    color: #2ecc71;
+    background: rgba(46,204,113,0.08);
+    border-radius: 6px;
+    padding: 0.3rem 0.7rem;
+    display: block;
+    width: 100%;
+}
+/* Restore previous results demo styles, but keep winner badge, vote counts, and result bars */
+.demo-page .current-rank-list, .demo-page .your-rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.demo-page .current-rank-list .ranking-item,
+.demo-page .your-rank-list .ranking-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  position: relative;
+}
+.demo-page .current-rank-list .ranking-item.winner {
+  background: #2ecc71;
+  color: #fff;
+}
+.demo-page .current-rank-list .ranking-item .winner-badge {
+  background: #2ecc71;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.2rem 0.8rem;
+  margin-left: 1rem;
+  display: inline-flex;
+  align-items: center;
+}
+.demo-page .current-rank-list .ranking-item .final-result-bar {
+  height: 12px;
+  background: #2196f3;
+  border-radius: 6px;
+  margin-top: 0.6rem;
+  width: 100%;
+}
+.demo-page .option-text {
+  flex: 1;
+  font-weight: 600;
+  font-size: 1rem;
+}
+.demo-page .rank-badge {
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  font-size: 0.95rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  margin-left: 1rem;
+}
+.demo-page .vote-count {
+  font-weight: 600;
+  margin-left: 1rem;
+  color: #fff;
+}
+.demo-page .result-header {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a2a4d;
+  margin-bottom: 0.5rem;
+}
+.demo-page .result-meta {
+  font-size: 1.1rem;
+  color: #1a2a4d;
+  margin-bottom: 0.5rem;
+}
+.demo-page .result-ended {
+  color: #2ecc71;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.demo-page .final-results {
+  margin-top: 1.5rem;
+}
+.demo-page .final-result-item {
+  background: #c7eafc;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1a2a4d;
+  position: relative;
+}
+.demo-page .final-result-item.winner {
+  background: #b6e7e0;
+  border: 2px solid #2ecc71;
+}
+.demo-page .final-result-item .winner-badge {
+  background: #2ecc71;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.2rem 0.8rem;
+  margin-left: 1rem;
+  display: inline-flex;
+  align-items: center;
+}
+.demo-page .final-result-bar {
+  height: 12px;
+  background: #2196f3;
+  border-radius: 6px;
+  margin-top: 0.6rem;
+}
+.demo-page .your-ranking {
+  margin-top: 1.5rem;
+  color: #1a2a4d;
+}
+.demo-page .your-ranking-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.demo-page .your-ranking-empty {
+  color: #888;
+  font-style: italic;
+  font-size: 1.1rem;
+}
+.demo-page .breakdown-toggle {
+  background: #2196f3;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+.demo-page .breakdown-section {
+  background: #c7eafc;
+  border-radius: 16px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.demo-page .breakdown-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+  color: #1a2a4d;
+}
+.demo-page .breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.5rem;
+}
+.demo-page .breakdown-table th {
+  text-align: left;
+  font-weight: 700;
+  color: #1a2a4d;
+  padding-bottom: 0.5rem;
+}
+.demo-page .breakdown-table td {
+  padding: 0.4rem 0.2rem;
+  font-weight: 600;
+  color: #1a2a4d;
+}
+.demo-page .breakdown-table .eliminated {
+  color: #d9534f;
+  font-weight: 700;
+}
+.demo-page .breakdown-table .eliminated-status {
+  color: #d9534f;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.demo-page .breakdown-table .remaining-status {
+  color: #1a2a4d;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.demo-page .feature-intro {
+  margin: 1.5rem auto;
+  max-width: 600px;
+  text-align: left;
+  background: rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 1.2rem;
+  color: #fff;
+  font-size: 1.08rem;
+  font-weight: 500;
+}
+.demo-page .feature-intro h2 {
+  color: #5ea0f2;
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+}
+.demo-page .feature-highlight-box {
+  background: rgba(17, 8, 44, 0.95);
+  border: 2px solid #5ea0f2;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px rgba(94,160,242,0.12);
+  padding: 1.2rem 2rem;
+  margin: 0 auto 2rem auto;
+  max-width: 640px;
+  color: #fff;
+  text-align: center;
+  font-size: 1.18rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+}
+.demo-page .feature-highlight-box ul,
+.demo-page .feature-highlight-box li {
+  display: none;
+}
