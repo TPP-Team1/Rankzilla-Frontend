@@ -56,15 +56,22 @@ const AdminPollsTab = () => {
         {polls.map((poll) => (
           <tr key={poll.id} style={{ borderTop: "1px solid #ccc" }}>
             <td>{poll.title}</td>
-            <td>{poll.status}</td>
+            <td>
+              <span className={`badge ${poll.status}`}>
+                {poll.status.charAt(0).toUpperCase() + poll.status.slice(1)}
+              </span>
+            </td>
             <td>{poll.id}</td>
             <td>
               <button
-                style={{
-                  background: poll.isDisabled ? "#28a745" : "#dc3545",
-                  color: "white",
-                }}
                 onClick={() => togglePollDisable(poll.id)}
+                style={{
+                  backgroundColor: poll.isDisabled ? "#28a745" : "#dc3545",
+                  color: "white",
+                  border: "none",
+                  padding: "0.5rem 1rem",
+                  cursor: "pointer",
+                }}
               >
                 {poll.isDisabled ? "Enable" : "Disable"}
               </button>

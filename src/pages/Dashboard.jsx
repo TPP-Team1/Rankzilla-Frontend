@@ -132,62 +132,60 @@ const Dashboard = ({ user: currentUser }) => {
       : `ends in ${days} day${days > 1 ? "s" : ""}`;
   };
 
-  return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <h1>Dashboard</h1>
-      </header>
+return (
+  <div className="dashboard">
+    <header className="dashboard-header">
+      <h1>Dashboard</h1>
+    </header>
 
-      <nav className="dashboard-nav">
-        <button onClick={() => setIsModalOpen(true)}>+ Create a Poll</button>
-        <input
-          type="text"
-          placeholder="Search by title..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="all">All</option>
-          <option value="created">Created</option>
-          <option value="participated">Participated</option>
-        </select>
-        <select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value)}
-        >
-          <option value="newest">Newest first</option>
-          <option value="oldest">Oldest first</option>
-          <option value="status-az">Status A → Z</option>
-          <option value="status-za">Status Z → A</option>
-        </select>
-      </nav>
-
-      {loading && <p>Loading polls...</p>}
-      {error && <p className="error">{error}</p>}
-      {!loading && filteredAndSortedPolls.length === 0 && (
-        <p>No polls to display.</p>
-      )}
-
-      <ul className="poll-list">
-        {filteredAndSortedPolls.map((poll) => (
-          <PollCard
-            key={poll.id}
-            poll={poll}
-            isOpen={openMenuId === poll.id}
-            onToggleMenu={(id) => setOpenMenuId(openMenuId === id ? null : id)}
-            currentUser={currentUser}
-            onEditDraft={handleEditDraft}
-          />
-        ))}
-      </ul>
-      <PollFormModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onPollCreated={fetchPolls}
-        initialData={editingDraft}
+    <nav className="dashboard-nav">
+      <button className="create-btn" onClick={() => setIsModalOpen(true)}>+ Create a Poll</button>
+      <input
+        type="text"
+        placeholder="Search by title..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
       />
-    </div>
-  );
-};
+      <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+        <option value="all">All</option>
+        <option value="created">Created</option>
+        <option value="participated">Participated</option>
+      </select>
+      <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="status-az">Status A → Z</option>
+        <option value="status-za">Status Z → A</option>
+      </select>
+    </nav>
+
+    {loading && <p>Loading polls...</p>}
+    {error && <p className="error">{error}</p>}
+    {!loading && filteredAndSortedPolls.length === 0 && (
+      <p>No polls to display.</p>
+    )}
+
+    <ul className="poll-list">
+      {filteredAndSortedPolls.map((poll) => (
+        <PollCard
+          key={poll.id}
+          poll={poll}
+          isOpen={openMenuId === poll.id}
+          onToggleMenu={(id) => setOpenMenuId(openMenuId === id ? null : id)}
+          currentUser={currentUser}
+          onEditDraft={handleEditDraft}
+        />
+      ))}
+    </ul>
+
+    <PollFormModal
+      isOpen={isModalOpen}
+      onClose={handleCloseModal}
+      onPollCreated={fetchPolls}
+      initialData={editingDraft}
+    />
+  </div>
+);
+}
 
 export default Dashboard;
